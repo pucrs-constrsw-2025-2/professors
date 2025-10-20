@@ -1,5 +1,5 @@
 import uuid
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Optional, List, Any
 
 # --- Schemas para o CRUD de Professores ---
@@ -18,7 +18,12 @@ class ProfessorCreateRequest(ProfessorBase):
 
 # Schema para o Response Body (GET, POST, PUT, PATCH) [cite: 5]
 class ProfessorResponse(ProfessorBase):
-    db_id: uuid.UUID = Field(..., alias="_id", description="ID único do registro no banco (UUID)")
+    db_id: uuid.UUID = Field(..., alias="id", description="ID único do registro no banco (UUID)")
+    
+    model_config = ConfigDict(
+        from_attributes=True,  # Allows reading from the domain model attributes
+        by_alias=True          # Ensures 'db_id' is serialized as 'id'
+    )
 
 # Schema para o Request Body do PUT [cite: 12]
 # (message.txt indica um body completo)

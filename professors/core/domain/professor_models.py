@@ -1,5 +1,5 @@
 import uuid
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Optional
 
 # Modelo base com os campos comuns
@@ -20,7 +20,9 @@ class ProfessorUpdate(ProfessorBase):
 
 # Modelo completo do domínio (inclui o _id do banco)
 class Professor(ProfessorBase):
-    db_id: uuid.UUID = Field(..., alias="_id", description="ID único do registro no banco (UUID)")
+    db_id: uuid.UUID = Field(..., alias="id", description="ID único do registro no banco (UUID)")
 
-    class Config:
-        from_attributes = True # Antigo orm_mode
+    model_config = ConfigDict(
+        from_attributes=True,  
+        by_alias=True         
+    )

@@ -14,13 +14,22 @@ class SQLAlchemyProfessorRepository(ProfessorRepositoryPort):
 
     def _to_domain(self, db_professor: ProfessorTableModel) -> Professor:
         """Converte o modelo SQLAlchemy para o modelo de domínio Pydantic."""
-        if db_professor is None:
-            return None
         
-        # Passar o __dict__ contorna o problema do Pydantic v2 (from_attributes=True)
-        # ignorar atributos que começam com '_', como o nosso '_id'.
-        # Ao passar um dict, Pydantic usará o alias '_id' para preencher 'db_id'.
-        return Professor.model_validate(db_professor.__dict__)
+        # O __dict__ falha ao carregar objetos existentes (somente expõe o _sa_instance_state).
+        # A solução correta é criar o dicionário manualmente.
+        
+        professor_data = {
+            "id": db_professor.id,
+            "id_professor": db_professor.id_professor,
+            "name": db_professor.name,
+            "registration_number": db_professor.registration_number,
+            "institucional_email": db_professor.institucional_email,
+            "status": db_professor.status
+        }
+        
+        # Agora, o Pydantic recebe um dicionário limpo, encontra a chave "_id"
+        # e a mapeia corretamente para o campo 'db_id' (que tem o alias="_id").
+        return Professor.model_validate(professor_data)
 
     def add(self, professor_data: ProfessorCreate) -> Professor:
         try:
@@ -35,7 +44,7 @@ class SQLAlchemyProfessorRepository(ProfessorRepositoryPort):
             raise ValueError(f"Database integrity error: {e.orig}")
 
     def get_by_id(self, professor_uuid: uuid.UUID) -> Optional[Professor]:
-        db_professor = self.db.query(ProfessorTableModel).filter(ProfessorTableModel._id == professor_uuid).first()
+        db_professor = self.db.query(ProfessorTableModel).filter(ProfessorTableModel.id == professor_uuid).first()
         return self._to_domain(db_professor) if db_professor else None
 
     def get_by_id_professor(self, id_professor: str) -> Optional[Professor]:
@@ -63,7 +72,7 @@ class SQLAlchemyProfessorRepository(ProfessorRepositoryPort):
         return [self._to_domain(p) for p in db_professors]
 
     def update(self, professor_uuid: uuid.UUID, professor_data: Dict[str, Any]) -> Optional[Professor]:
-        db_professor = self.db.query(ProfessorTableModel).filter(ProfessorTableModel._id == professor_uuid).first()
+        db_professor = self.db.query(ProfessorTableModel).filter(ProfessorTableModel.id == professor_uuid).first()
         
         if not db_professor:
             return None
@@ -82,7 +91,7 @@ class SQLAlchemyProfessorRepository(ProfessorRepositoryPort):
             return None # Ou levanta uma exceção de conflito
 
     def delete(self, professor_uuid: uuid.UUID) -> bool:
-        db_professor = self.db.query(ProfessorTableModel).filter(ProfessorTableModel._id == professor_uuid).first()
+        db_professor = self.db.query(ProfessorTableModel).filter(ProfessorTableModel.id == professor_uuid).first()
         
         if db_professor:
             self.db.delete(db_professor)

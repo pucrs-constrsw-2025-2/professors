@@ -1,9 +1,9 @@
 import uuid
-from fastapi import APIRouter, Depends, status, Query, Body
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from typing import List, Optional
 
+from professors.core.domain.professor_models import Professor, ProfessorCreate, ProfessorUpdate
 from professors.core.services.professor_service import ProfessorService
-from professors.core.domain.professor_models import ProfessorCreate, ProfessorUpdate
 from professors.adapters.api.schemas.professor_schemas import (
     ProfessorResponse, ProfessorCreateRequest, ProfessorUpdateRequest, ProfessorPatchRequest,
     AssociateClassRequest, ClassResponse, CourseResponse, LessonResponse
@@ -19,21 +19,37 @@ router = APIRouter(
 
 @router.post(
     "/",
-    response_model=ProfessorResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Create a Professor"
+    response_model=Professor,  # <-- MUDANÇA AQUI
+    status_code=status.HTTP_201_CREATED
 )
-async def create_professor(
-    professor_in: ProfessorCreateRequest,
+def create_professor(
+    professor_data: ProfessorCreateRequest,
     service: ProfessorService = Depends(get_professor_service)
 ):
-    """Cria um novo professor.""" 
-    professor_data = ProfessorCreate(**professor_in.model_dump())
-    return service.create_professor(professor_data)
+    try:
+        # O 'professor_data' (Request) é validado pelo Pydantic
+        # Convertemos para o modelo de domínio 'ProfessorCreate' esperado pelo serviço
+        professor_create = ProfessorCreate(**professor_data.model_dump())
+        
+        # O serviço cria e retorna o modelo de domínio 'Professor'
+        created_professor = service.create_professor(professor_create)
+        
+        # 'created_professor' é um objeto 'Professor'
+        # Como o response_model agora é 'Professor', e esse modelo
+        # também tem o ConfigDict(by_alias=True), a serialização
+        # deve funcionar corretamente.
+        return created_professor
+        
+    except Exception as e:
+        # (Idealmente, trate exceções específicas, como "professor já existe")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Erro ao criar professor: {str(e)}"
+        )
 
 @router.get(
     "/",
-    response_model=List[ProfessorResponse],
+    response_model=List[Professor],
     summary="Search for professors" 
 )
 async def search_professors(
@@ -49,7 +65,7 @@ async def search_professors(
 
 @router.get(
     "/{id}",
-    response_model=ProfessorResponse,
+    response_model=Professor,
     summary="Search for a specific professor"
 )
 async def get_professor(
@@ -61,7 +77,7 @@ async def get_professor(
 
 @router.put(
     "/{id}",
-    response_model=ProfessorResponse,
+    response_model=Professor,
     summary="Update a specific professor"
 )
 async def update_professor(
@@ -75,7 +91,7 @@ async def update_professor(
 
 @router.patch(
     "/{id}",
-    response_model=ProfessorResponse,
+    response_model=Professor,
     summary="Update an attribute from a specific professor" 
 )
 async def patch_professor(
