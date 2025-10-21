@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from professors.core.ports.professor_repository_port import ProfessorRepositoryPort
-from professors.core.domain.professor_models import Professor, ProfessorCreate, ProfessorUpdate
-from .models import Professor as ProfessorTableModel # Model da tabela
+from professors.core.domain.professor_models import Professor, ProfessorCreate
+from .models import Professor as ProfessorTableModel
 
 class SQLAlchemyProfessorRepository(ProfessorRepositoryPort):
     
@@ -15,20 +15,14 @@ class SQLAlchemyProfessorRepository(ProfessorRepositoryPort):
     def _to_domain(self, db_professor: ProfessorTableModel) -> Professor:
         """Converte o modelo SQLAlchemy para o modelo de domínio Pydantic."""
         
-        # O __dict__ falha ao carregar objetos existentes (somente expõe o _sa_instance_state).
-        # A solução correta é criar o dicionário manualmente.
-        
         professor_data = {
             "id": db_professor.id,
-            "id_professor": db_professor.id_professor,
             "name": db_professor.name,
             "registration_number": db_professor.registration_number,
             "institucional_email": db_professor.institucional_email,
             "status": db_professor.status
         }
         
-        # Agora, o Pydantic recebe um dicionário limpo, encontra a chave "_id"
-        # e a mapeia corretamente para o campo 'db_id' (que tem o alias="_id").
         return Professor.model_validate(professor_data)
 
     def add(self, professor_data: ProfessorCreate) -> Professor:
@@ -40,18 +34,13 @@ class SQLAlchemyProfessorRepository(ProfessorRepositoryPort):
             return self._to_domain(db_professor)
         except IntegrityError as e:
             self.db.rollback()
-            # Isso é um fallback, o serviço já deve ter verificado
             raise ValueError(f"Database integrity error: {e.orig}")
 
     def get_by_id(self, professor_uuid: uuid.UUID) -> Optional[Professor]:
         db_professor = self.db.query(ProfessorTableModel).filter(ProfessorTableModel.id == professor_uuid).first()
         return self._to_domain(db_professor) if db_professor else None
 
-    def get_by_id_professor(self, id_professor: str) -> Optional[Professor]:
-        db_professor = self.db.query(ProfessorTableModel).filter(ProfessorTableModel.id_professor == id_professor).first()
-        return self._to_domain(db_professor) if db_professor else None
-
-    def get_by_registration_number(self, reg_number: str) -> Optional[Professor]:
+    def get_by_registration_number(self, reg_number: int) -> Optional[Professor]:
         db_professor = self.db.query(ProfessorTableModel).filter(ProfessorTableModel.registration_number == reg_number).first()
         return self._to_domain(db_professor) if db_professor else None
 
@@ -77,10 +66,8 @@ class SQLAlchemyProfessorRepository(ProfessorRepositoryPort):
         if not db_professor:
             return None
         
-        # Atualiza apenas os campos fornecidos
         for key, value in professor_data.items():
-            if value is not None: # Importante para PATCH
-                setattr(db_professor, key, value)
+            setattr(db_professor, key, value)
         
         try:
             self.db.commit()
@@ -88,7 +75,7 @@ class SQLAlchemyProfessorRepository(ProfessorRepositoryPort):
             return self._to_domain(db_professor)
         except IntegrityError:
             self.db.rollback()
-            return None # Ou levanta uma exceção de conflito
+            return None
 
     def delete(self, professor_uuid: uuid.UUID) -> bool:
         db_professor = self.db.query(ProfessorTableModel).filter(ProfessorTableModel.id == professor_uuid).first()

@@ -4,7 +4,7 @@ import asyncio  # <--- 1. Import asyncio
 
 # Importações absolutas a partir do pacote 'professors'
 from professors.config import get_settings
-from professors.adapters.api.routes import professors
+from professors.adapters.api.routes import classes, courses, lessons, professors
 from professors.adapters.database.database import Base, engine
 
 @asynccontextmanager
@@ -14,7 +14,6 @@ async def lifespan(app: FastAPI):
     
     print("Verificando e criando tabelas (se não existirem)...")
     try:
-        # 2. Use asyncio.to_thread to run the blocking call
         await asyncio.to_thread(Base.metadata.create_all, bind=engine)
         print("Tabelas prontas.")
     except Exception as e:
@@ -31,7 +30,10 @@ app = FastAPI(
 )
 
 app.include_router(professors.router)
+app.include_router(classes.router)
+app.include_router(courses.router)
+app.include_router(lessons.router)
 
-@app.get("/health", tags=["Health"])
-def health_check():
-    return {"status": "ok", "service": "professors"}
+@app.get("/", tags=["Health Check"], summary="Verifica a saúde da API")
+def read_root():
+    return {"status": "ok"}

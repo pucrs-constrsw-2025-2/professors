@@ -12,8 +12,8 @@ class Settings(BaseSettings):
     POSTGRESQL_INTERNAL_HOST: str = Field(..., env="POSTGRESQL_INTERNAL_HOST")
     POSTGRESQL_INTERNAL_PORT: int = Field(..., env="POSTGRESQL_INTERNAL_PORT")
     
-    # DB Específico para este microsserviço (recomendo adicionar ao .env)
     PROFESSORS_POSTGRESQL_DB: str = Field("professors", env="PROFESSORS_POSTGRESQL_DB")
+    OAUTH_SERVICE_URL: str = Field("http://oauth:8000", env="OAUTH_SERVICE_URL")
 
     @property
     def DATABASE_URL(self) -> str:
@@ -23,6 +23,11 @@ class Settings(BaseSettings):
             f"{self.POSTGRESQL_INTERNAL_HOST}:{self.POSTGRESQL_INTERNAL_PORT}/"
             f"{self.PROFESSORS_POSTGRESQL_DB}"
         )
+
+    @property
+    def OAUTH_VALIDATE_URL(self) -> str:
+        """URL completa para o endpoint de validação de token."""
+        return f"{self.OAUTH_SERVICE_URL}/validate"
 
     class Config:
         env_file = "../../.env"

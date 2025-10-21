@@ -4,9 +4,8 @@ from typing import Optional
 
 # Modelo base com os campos comuns
 class ProfessorBase(BaseModel):
-    id_professor: str = Field(..., description="ID lógico do professor (ex: 12345)")
     name: str = Field(..., description="Nome Completo do Professor")
-    registration_number: str = Field(..., description="Número de matrícula SIAPE")
+    registration_number: int = Field(..., description="Número de matrícula (Inteiro)")
     institucional_email: EmailStr = Field(..., description="E-mail institucional")
     status: str = Field(..., description="Status (ex: active, inactive, on_leave)")
 
@@ -18,11 +17,9 @@ class ProfessorCreate(ProfessorBase):
 class ProfessorUpdate(ProfessorBase):
     pass
 
-# Modelo completo do domínio (inclui o _id do banco)
 class Professor(ProfessorBase):
-    db_id: uuid.UUID = Field(..., alias="id", description="ID único do registro no banco (UUID)")
+    id: uuid.UUID = Field(..., description="ID único do registro no banco (UUID)")
 
     model_config = ConfigDict(
-        from_attributes=True,  
-        by_alias=True         
+        from_attributes=True
     )

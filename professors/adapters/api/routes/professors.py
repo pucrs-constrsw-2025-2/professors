@@ -5,43 +5,37 @@ from typing import List, Optional
 from professors.core.domain.professor_models import Professor, ProfessorCreate, ProfessorUpdate
 from professors.core.services.professor_service import ProfessorService
 from professors.adapters.api.schemas.professor_schemas import (
-    ProfessorResponse, ProfessorCreateRequest, ProfessorUpdateRequest, ProfessorPatchRequest,
-    AssociateClassRequest, ClassResponse, CourseResponse, LessonResponse
+    ProfessorResponse, ProfessorCreateRequest, ProfessorUpdateRequest
 )
 from professors.dependencies import get_professor_service
+from professors.adapters.api.auth import validate_token  # <-- Importado
 
 router = APIRouter(
     prefix="/api/v1/professors",
-    tags=["Professors"]
+    tags=["Professors"],
+    dependencies=[Depends(validate_token)]
 )
 
 # --- CRUD Principal ---
 
 @router.post(
     "/",
-    response_model=Professor,  # <-- MUDANÇA AQUI
-    status_code=status.HTTP_201_CREATED
+    response_model=Professor,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new professor"
 )
 def create_professor(
     professor_data: ProfessorCreateRequest,
     service: ProfessorService = Depends(get_professor_service)
 ):
     try:
-        # O 'professor_data' (Request) é validado pelo Pydantic
-        # Convertemos para o modelo de domínio 'ProfessorCreate' esperado pelo serviço
         professor_create = ProfessorCreate(**professor_data.model_dump())
-        
-        # O serviço cria e retorna o modelo de domínio 'Professor'
         created_professor = service.create_professor(professor_create)
-        
-        # 'created_professor' é um objeto 'Professor'
-        # Como o response_model agora é 'Professor', e esse modelo
-        # também tem o ConfigDict(by_alias=True), a serialização
-        # deve funcionar corretamente.
         return created_professor
         
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        # (Idealmente, trate exceções específicas, como "professor já existe")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Erro ao criar professor: {str(e)}"
@@ -72,7 +66,7 @@ async def get_professor(
     id: uuid.UUID,
     service: ProfessorService = Depends(get_professor_service)
 ):
-    """Busca um professor específico pelo seu _id (UUID)."""
+    """Busca um professor específico pelo seu id (UUID)."""
     return service.get_professor_by_id(id)
 
 @router.put(
@@ -89,21 +83,6 @@ async def update_professor(
     professor_data = ProfessorUpdate(**professor_in.model_dump())
     return service.update_professor(id, professor_data)
 
-@router.patch(
-    "/{id}",
-    response_model=Professor,
-    summary="Update an attribute from a specific professor" 
-)
-async def patch_professor(
-    id: uuid.UUID,
-    professor_in: ProfessorPatchRequest,
-    service: ProfessorService = Depends(get_professor_service)
-):
-    """Atualiza um professor (atualização parcial - PATCH)."""
-    # Envia apenas os campos que foram definidos no request
-    update_data = professor_in.model_dump(exclude_unset=True)
-    return service.patch_professor(id, update_data)
-
 @router.delete(
     "/{id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -116,69 +95,3 @@ async def delete_professor(
     """Deleta um professor específico."""
     service.delete_professor(id)
     return
-
-# --- Endpoints de Relacionamento (Stubs) ---
-
-@router.get(
-    "/{id}/classes",
-    response_model=List[ClassResponse],
-    summary="List all classes for a specific professor" 
-)
-async def get_professor_classes(
-    id: uuid.UUID,
-    service: ProfessorService = Depends(get_professor_service)
-):
-    """Lista todas as classes associadas a um professor.""" 
-    return service.get_classes_for_professor(id)
-
-@router.post(
-    "/{id}/classes",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Associate a professor with a class" 
-)
-async def associate_professor_class(
-    id: uuid.UUID,
-    request: AssociateClassRequest,
-    service: ProfessorService = Depends(get_professor_service)
-):
-    """Associa um professor a uma classe."""
-    # service.associate_class(id, request.class_id) # (Implementação futura)
-    return
-
-@router.delete(
-    "/{id}/classes/{class_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="Disassociate a professor from a class"
-)
-async def disassociate_professor_class(
-    id: uuid.UUID,
-    class_id: uuid.UUID,
-    service: ProfessorService = Depends(get_professor_service)
-):
-    """Desassocia um professor de uma classe."""
-    # service.disassociate_class(id, class_id) # (Implementação futura)
-    return
-
-@router.get(
-    "/{id}/courses",
-    response_model=List[CourseResponse],
-    summary="List all courses coordinated by a professor"
-)
-async def get_professor_courses(
-    id: uuid.UUID,
-    service: ProfessorService = Depends(get_professor_service)
-):
-    """Lista todos os cursos coordenados por um professor.""" 
-    return service.get_courses_for_professor(id)
-
-@router.get(
-    "/{id}/lessons",
-    response_model=List[LessonResponse],
-    summary="List all lessons taught by a professor"
-)
-async def get_professor_lessons(
-    id: uuid.UUID,
-    service: ProfessorService = Depends(get_professor_service)
-):
-    """Lista todas as aulas ministradas por um professor."""
-    return service.get_lessons_for_professor(id)

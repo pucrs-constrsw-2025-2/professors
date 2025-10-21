@@ -17,12 +17,7 @@ class ProfessorRepositoryPort(ABC):
         pass
 
     @abstractmethod
-    def get_by_id_professor(self, id_professor: str) -> Optional[Professor]:
-        """Busca um professor pelo seu id_professor (lógico)."""
-        pass
-
-    @abstractmethod
-    def get_by_registration_number(self, reg_number: str) -> Optional[Professor]:
+    def get_by_registration_number(self, reg_number: int) -> Optional[Professor]:
         """Busca um professor pelo seu registration_number."""
         pass
 
