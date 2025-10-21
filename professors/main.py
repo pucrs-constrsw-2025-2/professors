@@ -1,10 +1,9 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-import asyncio  # <--- 1. Import asyncio
+import asyncio
 
-# Importações absolutas a partir do pacote 'professors'
 from professors.config import get_settings
-from professors.adapters.api.routes import classes, courses, lessons, professors
+from professors.adapters.api.routes import professors, classes, graduations # Importa o módulo
 from professors.adapters.database.database import Base, engine
 
 @asynccontextmanager
@@ -24,16 +23,15 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Professors Microservice",
-    description="API para gerenciamento de professores",
+    description="API para gerenciamento de professores e suas formações.",
     version="1.0.0",
     lifespan=lifespan
 )
 
 app.include_router(professors.router)
 app.include_router(classes.router)
-app.include_router(courses.router)
-app.include_router(lessons.router)
+app.include_router(graduations.router) 
 
-@app.get("/", tags=["Health Check"], summary="Verifica a saúde da API")
-def read_root():
+@app.get("/health", tags=["Health Check"], summary="Verifica a saúde da API")
+def health_check():
     return {"status": "ok"}
