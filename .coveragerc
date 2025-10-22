@@ -1,0 +1,20 @@
+[run]
+# Define o diretório principal do código-fonte
+source = professors
+
+# Lista de arquivos/pastas para omitir da medição
+omit =
+    # Repositórios são mockados em testes de unidade.
+    # A cobertura deles virá de testes de integração.
+    professors/adapters/database/graduation_repository.py
+    professors/adapters/database/professor_repository.py
+    
+    # Auth é "burlado" (overridden) nos testes de API.
+    professors/adapters/api/auth.py
+    
+    # Ports são interfaces (Protocolos), não têm lógica executável.
+    professors/core/ports/*
+    
+    # Boilerplate de conexão DB e injeção de dependência
+    professors/adapters/database/database.py
+    professors/dependencies.py
