@@ -17,6 +17,12 @@ psycopg2-binary = "^2.9.9"
 uuid = "^1.30"
 httpx = "^0.27.0"
 
+[tool.poetry.group.test.dependencies]
+pytest = "^8.0.0"
+pytest-mock = "^3.12.0"  # Essencial para mocks
+pytest-cov = "^5.0.0"    # Para coverage
+httpx = "^0.27.0"        # Necessário para o TestClient do FastAPI
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

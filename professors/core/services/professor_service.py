@@ -23,7 +23,7 @@ class ProfessorService:
         professor = self.repository.get_by_id(professor_uuid)
         if not professor:
             raise HTTPException(
-                status_code=status.HTTP_4404_NOT_FOUND,
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail="Professor not found."
             ) 
         return professor
