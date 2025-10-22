@@ -9,9 +9,8 @@ class Settings(BaseSettings):
     POSTGRESQL_INTERNAL_HOST: str = Field(..., env="POSTGRESQL_INTERNAL_HOST")
     POSTGRESQL_INTERNAL_PORT: int = Field(..., env="POSTGRESQL_INTERNAL_PORT")
     
-    PROFESSORS_POSTGRESQL_DB: str = Field("professors", env="PROFESSORS_POSTGRESQL_DB")
+    PROFESSORS_POSTGRESQL_DB: str = Field(..., env="PROFESSORS_POSTGRESQL_DB")
 
-    # Configurações do OAuth (lidas do .env principal) 
     OAUTH_INTERNAL_PROTOCOL: str = Field(..., env="OAUTH_INTERNAL_PROTOCOL")
     OAUTH_INTERNAL_HOST: str = Field(..., env="OAUTH_INTERNAL_HOST")
     OAUTH_INTERNAL_API_PORT: int = Field(..., env="OAUTH_INTERNAL_API_PORT")
