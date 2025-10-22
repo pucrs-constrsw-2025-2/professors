@@ -3,9 +3,6 @@ from pydantic import Field
 from functools import lru_cache
 
 class Settings(BaseSettings):
-    # Configurações do serviço Professors
-    PROFESSORS_INTERNAL_API_PORT: int = 8082
-        
     # Configurações do Banco de Dados (lidas do .env principal)
     POSTGRESQL_USERNAME: str = Field(..., env="POSTGRESQL_USERNAME")
     POSTGRESQL_PASSWORD: str = Field(..., env="POSTGRESQL_PASSWORD")
@@ -13,7 +10,11 @@ class Settings(BaseSettings):
     POSTGRESQL_INTERNAL_PORT: int = Field(..., env="POSTGRESQL_INTERNAL_PORT")
     
     PROFESSORS_POSTGRESQL_DB: str = Field("professors", env="PROFESSORS_POSTGRESQL_DB")
-    OAUTH_SERVICE_URL: str = Field("http://oauth:8000", env="OAUTH_SERVICE_URL")
+
+    # Configurações do OAuth (lidas do .env principal) 
+    OAUTH_INTERNAL_PROTOCOL: str = Field(..., env="OAUTH_INTERNAL_PROTOCOL")
+    OAUTH_INTERNAL_HOST: str = Field(..., env="OAUTH_INTERNAL_HOST")
+    OAUTH_INTERNAL_API_PORT: int = Field(..., env="OAUTH_INTERNAL_API_PORT")
 
     @property
     def DATABASE_URL(self) -> str:
@@ -27,7 +28,7 @@ class Settings(BaseSettings):
     @property
     def OAUTH_VALIDATE_URL(self) -> str:
         """URL completa para o endpoint de validação de token."""
-        return f"{self.OAUTH_SERVICE_URL}/validate"
+        return f"{self.OAUTH_INTERNAL_PROTOCOL}://{self.OAUTH_INTERNAL_HOST}:{self.OAUTH_INTERNAL_API_PORT}/validate"
 
     class Config:
         env_file = "../../.env"
