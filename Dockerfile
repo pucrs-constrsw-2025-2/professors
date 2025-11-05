@@ -1,5 +1,5 @@
 # --- Estágio 1: Builder ---
-FROM python:3.10-slim as builder
+FROM python:3.10-slim AS builder
 
 WORKDIR /build
 
