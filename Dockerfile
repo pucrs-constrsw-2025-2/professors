@@ -22,6 +22,9 @@ ENV PYTHONUNBUFFERED=1
 ENV PATH="/app/.venv/bin:$PATH"
 # ENV PYTHONPATH="/app"  <--- REMOVA ESTA LINHA
 
+# Instala o curl (necessário para o healthcheck)
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 # Cria a estrutura de diretórios
 WORKDIR /app
 
