@@ -40,7 +40,7 @@ COPY professors/ /app/professors/
 # --- FIM DA REMOÇÃO ---
 
 # Expõe a porta
-EXPOSE 8081
+EXPOSE 8082
 
 # --- ALTERE O CMD ABAIXO ---
 # Comando para iniciar a aplicação (sem alembic)
