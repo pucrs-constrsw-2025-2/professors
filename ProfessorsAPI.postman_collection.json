@@ -1,0 +1,453 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-a1b2-c3d4e5f67890",
+		"name": "Professors Microservice",
+		"description": "Coleção da API para o Microsserviço de Professores, baseado nos arquivos do projeto FastAPI.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"health"
+					]
+				},
+				"description": "Verifica a saúde da API"
+			},
+			"response": []
+		},
+		{
+			"name": "Professors",
+			"description": "Endpoints para o CRUD principal de Professores",
+			"item": [
+				{
+					"name": "Create a new professor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Dr. Test\",\n  \"registration_number\": 12345,\n  \"institucional_email\": \"test@pucrs.br\",\n  \"status\": \"active\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/professors/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"professors",
+								""
+							]
+						},
+						"description": "Cria um novo professor. Exemplo de body baseado em `tests/adapters/api/test_professors.py`."
+					},
+					"response": []
+				},
+				{
+					"name": "Search professors (with Filters)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/professors/?name=Dr.&status=active",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"professors",
+								""
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Dr.",
+									"description": "Filtrar por nome (parcial)"
+								},
+								{
+									"key": "status",
+									"value": "active",
+									"description": "Filtrar por status (exato)"
+								}
+							]
+						},
+						"description": "Busca professores com base em critérios (filtros)."
+					},
+					"response": []
+				},
+				{
+					"name": "Search professors (List All)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/professors/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"professors",
+								""
+							]
+						},
+						"description": "Busca todos os professores (sem filtros)."
+					},
+					"response": []
+				},
+				{
+					"name": "Search for a specific professor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/professors/{{professor_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"professors",
+								"{{professor_id}}"
+							]
+						},
+						"description": "Busca um professor específico pelo seu id (UUID)."
+					},
+					"response": []
+				},
+				{
+					"name": "Update a specific professor",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Name\",\n  \"registration_number\": 12346,\n  \"institucional_email\": \"updated@pucrs.br\",\n  \"status\": \"inactive\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/professors/{{professor_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"professors",
+								"{{professor_id}}"
+							]
+						},
+						"description": "Atualiza um professor (substituição completa - PUT). Exemplo de body baseado em `tests/adapters/api/test_professors.py`."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a specific professor",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/professors/{{professor_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"professors",
+								"{{professor_id}}"
+							]
+						},
+						"description": "Deleta um professor específico."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Graduations",
+			"description": "Endpoints para gerenciar as Graduações, aninhadas ou não",
+			"item": [
+				{
+					"name": "Criar graduação para um professor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"degree\": \"Mestrado\",\n  \"course\": \"Engenharia de Software\",\n  \"institution_name\": \"PUCRS\",\n  \"year\": 2025\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/professors/{{professor_id}}/graduations/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"professors",
+								"{{professor_id}}",
+								"graduations",
+								""
+							]
+						},
+						"description": "Cria uma nova graduação para um professor específico. Exemplo de body baseado em `tests/adapters/api/test_graduations.py`."
+					},
+					"response": []
+				},
+				{
+					"name": "Listar graduações de um professor específico",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/professors/{{professor_id}}/graduations/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"professors",
+								"{{professor_id}}",
+								"graduations",
+								""
+							]
+						},
+						"description": "Lista todas as graduações de um professor específico."
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar uma graduação",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"degree\": \"Doutorado\",\n  \"course\": \"Ciência da Computação\",\n  \"institution_name\": \"PUCRS\",\n  \"year\": 2028\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/professors/{{professor_id}}/graduations/{{graduation_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"professors",
+								"{{professor_id}}",
+								"graduations",
+								"{{graduation_id}}"
+							]
+						},
+						"description": "Atualiza uma graduação (requer `professor_id` no path para validação)."
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir uma graduação",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/professors/{{professor_id}}/graduations/{{graduation_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"professors",
+								"{{professor_id}}",
+								"graduations",
+								"{{graduation_id}}"
+							]
+						},
+						"description": "Exclui uma graduação (requer `professor_id` no path para validação)."
+					},
+					"response": []
+				},
+				{
+					"name": "Listar todas as graduações do sistema",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/graduations/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"graduations",
+								""
+							]
+						},
+						"description": "Lista todas as graduações cadastradas no sistema, independentemente do professor."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Classes",
+			"description": "Endpoints para associar Professores a Turmas (Classes)",
+			"item": [
+				{
+					"name": "List all classes for a specific professor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/professors/{{professor_id}}/classes/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"professors",
+								"{{professor_id}}",
+								"classes",
+								""
+							]
+						},
+						"description": "Lista todas as classes associadas a um professor."
+					},
+					"response": []
+				},
+				{
+					"name": "Associate a professor with a class",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"class_id\": \"{{class_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/professors/{{professor_id}}/classes/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"professors",
+								"{{professor_id}}",
+								"classes",
+								""
+							]
+						},
+						"description": "Associa um professor a uma classe. O body é baseado em `adapters/api/schemas/class_schemas.py`."
+					},
+					"response": []
+				},
+				{
+					"name": "Disassociate a professor from a class",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/professors/{{professor_id}}/classes/{{class_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"professors",
+								"{{professor_id}}",
+								"classes",
+								"{{class_id}}"
+							]
+						},
+						"description": "Desassocia um professor de uma classe."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{TOKEN}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8181",
+			"type": "string",
+			"description": "URL base do microsserviço, conforme definido no README.md."
+		},
+		{
+			"key": "TOKEN",
+			"value": "SEU_TOKEN_DO_KEYCLOAK_AQUI",
+			"type": "string",
+			"description": "Token de portador (Bearer) obtido do Keycloak para autenticação."
+		},
+		{
+			"key": "professor_id",
+			"value": "00000000-0000-0000-0000-000000000001",
+			"type": "string",
+			"description": "ID de exemplo para um professor."
+		},
+		{
+			"key": "graduation_id",
+			"value": "00000000-0000-0000-0000-000000000002",
+			"type": "string",
+			"description": "ID de exemplo para uma graduação."
+		},
+		{
+			"key": "class_id",
+			"value": "00000000-0000-0000-0000-000000000003",
+			"type": "string",
+			"description": "ID de exemplo para uma classe/turma."
+		}
+	]
+}
