@@ -7,10 +7,11 @@ WORKDIR /build
 RUN pip install poetry
 
 # Copia os arquivos de definição de projeto
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml poetry.lock* ./
 
-# Instala as dependências em um ambiente virtual
+# Atualiza o lock file se necessário e instala as dependências em um ambiente virtual
 RUN poetry config virtualenvs.in-project true && \
+    (poetry lock || true) && \
     poetry install --no-interaction --no-ansi --no-root --only main
 
 # --- Estágio 2: Runner ---
@@ -39,8 +40,9 @@ COPY professors/ /app/professors/
 # COPY alembic.ini /app/alembic.ini
 # --- FIM DA REMOÇÃO ---
 
-# Expõe a porta
+# Expõe a porta da aplicação e a porta de debug
 EXPOSE 8082
+EXPOSE 5678
 
 # --- ALTERE O CMD ABAIXO ---
 # Comando para iniciar a aplicação (sem alembic)
