@@ -27,7 +27,10 @@ app = FastAPI(
     title="Professors Microservice",
     description="API para gerenciamento de professores e suas formações.",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    docs_url="/api/v1/docs",
+    redoc_url="/api/v1/redoc",
+    openapi_url="/api/v1/openapi.json",
 )
 
 app.include_router(professors.router)

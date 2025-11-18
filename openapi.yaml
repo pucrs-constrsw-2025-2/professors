@@ -1,0 +1,517 @@
+openapi: 3.1.0
+info:
+  title: ConstrSW - Professors API
+  description: API para gerenciamento de professores, classes e graduações
+  version: 1.0.0
+servers:
+  - url: http://localhost:8185
+    description: Servidor de desenvolvimento (externo)
+  - url: http://professors:8082
+    description: Servidor interno (Docker)
+
+tags:
+  - name: Professors
+    description: Gerenciamento de professores
+  - name: Classes
+    description: Classes associadas a professores
+  - name: Graduations
+    description: Gerenciamento de graduações
+
+paths:
+  /api/v1/professors/:
+    post:
+      tags:
+        - Professors
+      summary: Criar um novo professor
+      operationId: createProfessor
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfessorCreateRequest'
+      responses:
+        '201':
+          description: Professor criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfessorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    get:
+      tags:
+        - Professors
+      summary: Buscar professores
+      operationId: searchProfessors
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de professores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProfessorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/professors/{id}:
+    get:
+      tags:
+        - Professors
+      summary: Buscar professor específico por ID
+      operationId: getProfessor
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Dados do professor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfessorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Professors
+      summary: Atualizar professor (completo)
+      operationId: updateProfessor
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfessorUpdateRequest'
+      responses:
+        '200':
+          description: Professor atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfessorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - Professors
+      summary: Deletar professor
+      operationId: deleteProfessor
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Professor deletado
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/professors/{id}/classes/:
+    get:
+      tags:
+        - Classes
+      summary: Listar classes de um professor
+      operationId: getProfessorClasses
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Lista de classes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClassResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    post:
+      tags:
+        - Classes
+      summary: Associar professor a uma classe
+      operationId: associateProfessorClass
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssociateClassRequest'
+      responses:
+        '204':
+          description: Professor associado à classe
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/professors/{id}/classes/{class_id}:
+    delete:
+      tags:
+        - Classes
+      summary: Desassociar professor de uma classe
+      operationId: disassociateProfessorClass
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: class_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Professor desassociado da classe
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/professors/{professor_id}/graduations/:
+    post:
+      tags:
+        - Graduations
+      summary: Criar graduação para um professor
+      operationId: createGraduation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: professor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraduationCreateRequest'
+      responses:
+        '201':
+          description: Graduação criada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraduationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    get:
+      tags:
+        - Graduations
+      summary: Listar graduações de um professor
+      operationId: getGraduationsForProfessor
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: professor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Lista de graduações
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GraduationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/professors/{professor_id}/graduations/{graduation_id}:
+    put:
+      tags:
+        - Graduations
+      summary: Atualizar uma graduação
+      operationId: updateGraduation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: professor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: graduation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraduationUpdateRequest'
+      responses:
+        '200':
+          description: Graduação atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraduationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - Graduations
+      summary: Excluir uma graduação
+      operationId: deleteGraduation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: professor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: graduation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Graduação excluída
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/graduations/:
+    get:
+      tags:
+        - Graduations
+      summary: Listar todas as graduações do sistema
+      operationId: getAllGraduations
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Lista de graduações
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GraduationResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Serviço está funcionando
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    BadRequest:
+      description: Requisição inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Não autorizado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Recurso não encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    ProfessorCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+
+    ProfessorUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+
+    ProfessorResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        status:
+          type: string
+
+    AssociateClassRequest:
+      type: object
+      properties:
+        class_id:
+          type: string
+          format: uuid
+
+    ClassResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    GraduationCreateRequest:
+      type: object
+      properties:
+        degree:
+          type: string
+        institution:
+          type: string
+        year:
+          type: integer
+
+    GraduationUpdateRequest:
+      type: object
+      properties:
+        degree:
+          type: string
+        institution:
+          type: string
+        year:
+          type: integer
+
+    GraduationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        degree:
+          type: string
+        institution:
+          type: string
+        year:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        detail:
+          type: string
+
