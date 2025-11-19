@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     @property
     def OAUTH_VALIDATE_URL(self) -> str:
         """URL completa para o endpoint de validação de token."""
-        return f"{self.OAUTH_INTERNAL_PROTOCOL}://{self.OAUTH_INTERNAL_HOST}:{self.OAUTH_INTERNAL_API_PORT}/validate"
+        return f"{self.OAUTH_INTERNAL_PROTOCOL}://{self.OAUTH_INTERNAL_HOST}:{self.OAUTH_INTERNAL_API_PORT}/api/v1/validate"
 
     class Config:
         env_file = "../../.env"
