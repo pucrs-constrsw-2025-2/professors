@@ -36,8 +36,8 @@ app = FastAPI(
 app.include_router(professors.router)
 app.include_router(classes.router)
 app.include_router(graduations.router)
-Instrumentator().instrument(app).expose(app)
+Instrumentator().instrument(app).expose(app, endpoint="/api/v1/metrics")
 
-@app.get("/health", tags=["Health Check"], summary="Verifica a saúde da API")
+@app.get("/api/v1/health", tags=["Health Check"], summary="Verifica a saúde da API")
 def health_check():
     return {"status": "ok"}
