@@ -18,7 +18,7 @@ tags:
     description: Gerenciamento de graduações
 
 paths:
-  /api/v1/professors/:
+  /api/v1/professors:
     post:
       tags:
         - Professors
@@ -72,7 +72,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-  /api/v1/professors/{id}:
+  /api/v1/professors/{professorId}:
     get:
       tags:
         - Professors
@@ -81,7 +81,7 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: id
+        - name: professorId
           in: path
           required: true
           schema:
@@ -107,7 +107,7 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: id
+        - name: professorId
           in: path
           required: true
           schema:
@@ -141,7 +141,7 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: id
+        - name: professorId
           in: path
           required: true
           schema:
@@ -155,7 +155,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /api/v1/professors/{id}/classes/:
+  /api/v1/professors/{professorId}/classes:
     get:
       tags:
         - Classes
@@ -164,7 +164,7 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: id
+        - name: professorId
           in: path
           required: true
           schema:
@@ -192,7 +192,7 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: id
+        - name: professorId
           in: path
           required: true
           schema:
@@ -214,7 +214,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /api/v1/professors/{id}/classes/{class_id}:
+  /api/v1/professors/{professorId}/classes/{classId}:
     delete:
       tags:
         - Classes
@@ -223,13 +223,13 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: id
+        - name: professorId
           in: path
           required: true
           schema:
             type: string
             format: uuid
-        - name: class_id
+        - name: classId
           in: path
           required: true
           schema:
@@ -243,7 +243,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /api/v1/professors/{professor_id}/graduations/:
+  /api/v1/professors/{professorId}/graduations:
     post:
       tags:
         - Graduations
@@ -252,7 +252,7 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: professor_id
+        - name: professorId
           in: path
           required: true
           schema:
@@ -286,7 +286,7 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: professor_id
+        - name: professorId
           in: path
           required: true
           schema:
@@ -306,7 +306,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /api/v1/professors/{professor_id}/graduations/{graduation_id}:
+  /api/v1/professors/{professorId}/graduations/{graduationId}:
     put:
       tags:
         - Graduations
@@ -315,13 +315,13 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: professor_id
+        - name: professorId
           in: path
           required: true
           schema:
             type: string
             format: uuid
-        - name: graduation_id
+        - name: graduationId
           in: path
           required: true
           schema:
@@ -355,13 +355,13 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: professor_id
+        - name: professorId
           in: path
           required: true
           schema:
             type: string
             format: uuid
-        - name: graduation_id
+        - name: graduationId
           in: path
           required: true
           schema:
@@ -375,7 +375,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /api/v1/graduations/:
+  /api/v1/graduations:
     get:
       tags:
         - Graduations
@@ -395,7 +395,7 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
-  /health:
+  /api/v1/health:
     get:
       tags:
         - Health
@@ -404,6 +404,20 @@ paths:
       responses:
         '200':
           description: Serviço está funcionando
+
+  /api/v1/metrics:
+    get:
+      tags:
+        - Metrics
+      summary: Métricas Prometheus
+      operationId: getMetrics
+      responses:
+        '200':
+          description: Métricas em formato Prometheus
+          content:
+            text/plain:
+              schema:
+                type: string
 
 components:
   securitySchemes:
@@ -463,7 +477,7 @@ components:
     AssociateClassRequest:
       type: object
       properties:
-        class_id:
+        classId:
           type: string
           format: uuid
 
